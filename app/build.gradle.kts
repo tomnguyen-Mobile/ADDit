@@ -65,7 +65,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    implementation("com.google.firebase:firebase-crashlytics:latest-version")
     ksp("androidx.room:room-compiler:$roomVersion")
 
     androidTestImplementation("androidx.room:room-testing:$roomVersion")
