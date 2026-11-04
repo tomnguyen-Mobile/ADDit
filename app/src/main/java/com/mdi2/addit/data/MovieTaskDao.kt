@@ -3,6 +3,7 @@ package com.mdi2.addit.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.mdi2.addit.models.MovieTask
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -30,7 +31,8 @@ interface MovieTaskDao {
     SET title = :title,
         season = :season,
         episode = :episode,
-        timestamp = :timestamp
+        timestamp = :timestamp,
+        completed = :completed
     WHERE id = :taskId
 """)
     suspend fun updateMovieTask(
@@ -38,6 +40,8 @@ interface MovieTaskDao {
         title: String,
         season: Int,
         episode: Int,
-        timestamp: String
+        timestamp: String,
+        completed: Boolean
     )
+
 }

@@ -2,7 +2,11 @@ package com.mdi2.addit.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mdi2.addit.data.network.RetrofitInstance
 import com.mdi2.addit.data.entities.CommentEntity
+import com.mdi2.addit.data.network.OMDB_API_KEY
+import com.mdi2.addit.data.network.OmdbMovie
+import com.mdi2.addit.data.network.OmdbSearchItem
 import com.mdi2.addit.models.MovieTask
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +29,8 @@ class MovieViewModel(private val repository: MovieRepositoryInterface) : ViewMod
     val uiState: StateFlow<MovieUiState> = mutableUiState.asStateFlow()
 
     init {
+        testOmdb()
+
         viewModelScope.launch{
             try{
                 repository.getMovieTasks().collect{ tasks ->
@@ -62,6 +68,7 @@ class MovieViewModel(private val repository: MovieRepositoryInterface) : ViewMod
         episode: Int,
         timestamp: String? = "00:00:00",
         completed: Boolean,
+        imageUrl: String? = null
     ) {
         viewModelScope.launch {
             repository.addMovieTask(
@@ -70,7 +77,8 @@ class MovieViewModel(private val repository: MovieRepositoryInterface) : ViewMod
                 season,
                 episode,
                 timestamp,
-                completed
+                completed,
+                imageUrl,
             )
         }
     }
@@ -110,11 +118,13 @@ class MovieViewModel(private val repository: MovieRepositoryInterface) : ViewMod
         return repository.getCommentsForMovie(taskId)
     }
     fun updateMovieTask(
+
         taskId: Int,
         title: String,
         season: Int,
         episode: Int,
-        timestamp: String
+        timestamp: String,
+        completed: Boolean
     ) {
         viewModelScope.launch {
             repository.updateMovieTask(
@@ -122,10 +132,85 @@ class MovieViewModel(private val repository: MovieRepositoryInterface) : ViewMod
                 title,
                 season,
                 episode,
-                timestamp
+                timestamp,
+                completed
             )
         }
     }
 
+    fun testOmdb() {
+        viewModelScope.launch {
+            try {
+                val movie = RetrofitInstance.api.getMovie(
+                    title = "Interstellar",
+                    apiKey = "475ed561"
+                )
+
+                println(movie.Poster)
+                println(movie.Title)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun searchMovie(
+        title: String,
+        onResult: (OmdbMovie?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val movie = RetrofitInstance.api.getMovie(
+                    title = title,
+                    apiKey = OMDB_API_KEY
+                )
+                onResult(movie)
+            } catch (e: Exception) {
+                onResult(null)
+            }
+        }
+    }
+
+    fun deleteMovieTask(taskId: Int) {
+        viewModelScope.launch {
+            repository.deleteMovieTask(taskId)
+        }
+    }
+
+    fun searchMovies(
+        title: String,
+        onResult: (List<OmdbSearchItem>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitInstance.api.searchMovies(
+                    search = title,
+                    apiKey = OMDB_API_KEY
+                )
+
+                onResult(response.Search ?: emptyList())
+            } catch (e: Exception) {
+                onResult(emptyList())
+            }
+        }
+    }
+
+    fun searchMovieById(
+        imdbId: String,
+        onResult: (OmdbMovie?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val movie = RetrofitInstance.api.getMovieById(
+                    imdbId = imdbId,
+                    apiKey = OMDB_API_KEY
+                )
+                onResult(movie)
+            } catch (e: Exception) {
+                onResult(null)
+            }
+        }
+    }
 }
 

@@ -42,6 +42,7 @@ android {
     }
 dependencies {
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.ui)
     val roomVersion = "2.8.4"
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -65,6 +66,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     ksp("androidx.room:room-compiler:$roomVersion")
 
     androidTestImplementation("androidx.room:room-testing:$roomVersion")

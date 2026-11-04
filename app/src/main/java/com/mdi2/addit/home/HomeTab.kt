@@ -28,9 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,6 +41,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.mdi2.addit.Destinations
 import com.mdi2.addit.MovieApplication
+import com.mdi2.addit.models.MovieTask
+import com.mdi2.addit.models.SettingsViewModel
+import com.mdi2.addit.settingsScreen.SettingsTab
 
 @Composable
 fun HomeTab(
@@ -60,9 +65,9 @@ fun HomeTab(
     HomeView(
         uiState = uiState,
         modifier = Modifier,
-        viewModel = movieViewModel,
-        onTaskCompletionToggle = { taskId ->
-            movieViewModel.toggleTaskCompletion(taskId)},
+//        viewModel = movieViewModel,
+//        onTaskCompletionToggle = { taskId ->
+//            movieViewModel.toggleTaskCompletion(taskId)},
         onTaskClick = { taskId ->
             navController.navigate("${Destinations.TASK_DETAIL}/$taskId")})
 }
@@ -71,8 +76,8 @@ fun HomeTab(
 fun HomeView(
     modifier: Modifier,
     uiState: MovieUiState,
-    viewModel: MovieViewModel,
-    onTaskCompletionToggle: (Int) -> Unit,
+//    viewModel: MovieViewModel,
+//    onTaskCompletionToggle: (Int) -> Unit,
     onTaskClick: (Int) -> Unit = {},
     ) {
     var taskTitle by rememberSaveable { mutableStateOf("") }
@@ -101,34 +106,52 @@ fun HomeView(
                 key = { task -> task.id }
                 ) {
                 task ->
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable{onTaskClick(task.id)}
-                    .padding(8.dp)){
-                    uiState.errorMessage?.let{errorMessage ->
-                        Text(errorMessage,
-                        modifier = Modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error) }
-                    var commentText by rememberSaveable(task.id) {
-                        mutableStateOf("")                }
-                    Text(
-                        text = task.title.split(" ").joinToString(" "){
-                            word -> word.replaceFirstChar{ it.uppercase()}                    }, //end of joinToString
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold                )
-                    Text(
-                        text = if (task.isMovie) "Movie" else "TV Show",
-                        fontStyle = FontStyle.Italic,                )
-                    if (!task.isMovie) {
-                        Text("Season: ${task.season}")
-                        Text("Episode: ${task.episode}")                        }
-                    Text(text = "Timestamp: ${task.timestamp ?: "00:00:00"}")
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                MovieTaskCard(
+                    task = task,
+                    onClick = onTaskClick,
+                    posterUrl = task.imageUrl,
+                )
+
+//                Column(modifier = Modifier
+//                    .fillMaxWidth()
+//                    .clickable{onTaskClick(task.id)}
+//                    .padding(8.dp)){
+//                    uiState.errorMessage?.let{errorMessage ->
+//                        Text(errorMessage,
+//                        modifier = Modifier.fillMaxWidth(),
+//                        style = MaterialTheme.typography.bodySmall,
+//                        color = MaterialTheme.colorScheme.error) }
+//                    var commentText by rememberSaveable(task.id) {
+//                        mutableStateOf("")                }
+//                    Text(
+//                        text = task.title.split(" ").joinToString(" "){
+//                            word -> word.replaceFirstChar{ it.uppercase()}                    }, //end of joinToString
+//                        style = MaterialTheme.typography.titleMedium,
+//                        fontWeight = FontWeight.Bold                )
+//                    Text(
+//                        text = if (task.isMovie) "Movie" else "TV Show",
+//                        fontStyle = FontStyle.Italic,                )
+//                    if (!task.isMovie) {
+//                        Text("Season: ${task.season}")
+//                        Text("Episode: ${task.episode}")                        }
+//                    Text(text = "Timestamp: ${task.timestamp ?: "00:00:00"}")
+//                    HorizontalDivider()
+//                    Spacer(modifier = Modifier.height(8.dp))
+//                }
             } // end of item
         } // end of lazy column
     }// end of  column
 } // end of Hom view
 // todo: filter out completed tasks
+
+@Preview(showBackground = true)
+@Composable
+fun HomePreview() {
+    HomeView(
+        modifier = Modifier,
+        uiState = MovieUiState(
+            movieTasks = emptyList()
+        ),
+        onTaskClick = {}
+    )
+}

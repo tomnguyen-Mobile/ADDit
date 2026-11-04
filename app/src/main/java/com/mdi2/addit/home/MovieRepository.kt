@@ -20,19 +20,23 @@ interface MovieRepositoryInterface {
         episode: Int,
         timestampOfPause: String?,
         completed: Boolean = false,
+        imageUrl: String? = null
     )
     suspend fun updateMovieTask(
         taskId: Int,
         title: String,
         season: Int,
         episode: Int,
-        timestamp: String
+        timestamp: String,
+        completed: Boolean
     )
 
     suspend fun addComment(
         movieTaskId: Int,
         comment: String
     )
+
+    suspend fun deleteMovieTask(taskId: Int)
 }
 
 // VIEW -> VIEWMODEL -> REPOSITORY -> DAO -> DATABASE
@@ -49,6 +53,7 @@ class InMemoryMovieRepository(
                     id = entity.id,
                     title = entity.title,
                     isMovie = entity.isMovie,
+                    imageUrl = entity.imageUrl,
                     season = entity.season,
                     episode = entity.episode,
                     timestamp = entity.timestamp ?: "",
@@ -73,10 +78,11 @@ class InMemoryMovieRepository(
                     id = entity.id,
                     title = entity.title,
                     isMovie = entity.isMovie,
+                    imageUrl = entity.imageUrl,
                     season = entity.season,
                     episode = entity.episode,
                     timestamp = entity.timestamp ?: "",
-                    completed = entity.completed
+                    completed = entity.completed,
                 )
             }
     }
@@ -99,6 +105,7 @@ class InMemoryMovieRepository(
         episode: Int,
         timestampOfPause: String?,
         completed: Boolean,
+        imageUrl: String?
     ) {
 
         val trimmedTitle = title.trim()
@@ -111,6 +118,7 @@ class InMemoryMovieRepository(
             id = 0,
             title = trimmedTitle,
             isMovie = isMovie,
+            imageUrl = imageUrl,
             season = season,
             episode = episode,
             timestamp = timestampOfPause,
@@ -125,14 +133,16 @@ class InMemoryMovieRepository(
         title: String,
         season: Int,
         episode: Int,
-        timestamp: String
+        timestamp: String,
+        completed: Boolean
     ) {
         movieTaskDao.updateMovieTask(
             taskId = taskId,
             title = title,
             season = season,
             episode = episode,
-            timestamp = timestamp
+            timestamp = timestamp,
+            completed = completed
         )
     }
 
@@ -149,6 +159,8 @@ class InMemoryMovieRepository(
         )
     }
 
-
+    override suspend fun deleteMovieTask(taskId: Int) {
+        movieTaskDao.deleteById(taskId)
+    }
 
 }

@@ -6,16 +6,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,15 +71,16 @@ fun EditTaskTab(
     var episode by remember { mutableStateOf(task.episode.toString()) }
     var timestamp by remember { mutableStateOf(task.timestamp) }
     var completed by remember { mutableStateOf(task.completed) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    ) { // Column
 
-        IconButton(
+        TextButton(
             onClick = {
                 navController.popBackStack()
             }
@@ -84,18 +89,33 @@ fun EditTaskTab(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back"
             )
-        }// end of icon button
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Back")
+        }
+//        IconButton(
+//            onClick = {
+//                navController.popBackStack()
+//            }
+//        ) {
+//            Icon(
+//                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                contentDescription = "Back"
+//            )
+//            Text("Back")
+//        }// end of icon button
 
 
         TextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Title") }
+            label = { Text("Title") },
+            modifier = Modifier.fillMaxWidth()
         )
 
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
             RadioButton(
                 selected = isMovie,
@@ -114,47 +134,121 @@ fun EditTaskTab(
             TextField(
                 value = season,
                 onValueChange = { season = it },
-                label = { Text("Season") }
+                label = { Text("Season") },
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextField(
                 value = episode,
                 onValueChange = { episode = it },
-                label = { Text("Episode") }
+                label = { Text("Episode") },
+                modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(8.dp))
         }
         TextField(
             value = timestamp,
             onValueChange = { timestamp = it },
             placeholder = {timestamp},
-            label = { Text("Timestamp") }
+            label = { Text("Timestamp") },
+            modifier = Modifier.fillMaxWidth()
         )
                 Row(
             verticalAlignment = Alignment.CenterVertically
           ) {
-            RadioButton(
-                selected = completed,
-                onClick = { completed = true }
-                )
-            Text(text = " finished watching?")
+                    if (!completed) {
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                onClick = {
+                                    completed = true
+                                }
+                            ) {
+                                Text("Mark as Finished")
+                            }
+                        }
+
+                    } else {
+
+                        Text(
+                            text = "✅ Finished Watching"
+                        )
+
+                    }
         } // end of row
 
-        Button(
-            onClick = {
-
-                movieViewModel.updateMovieTask(
-                    taskId = taskId,
-                    title = title,
-                    season = season.toIntOrNull() ?: 0,
-                    episode = episode.toIntOrNull() ?: 0,
-                    timestamp = timestamp
-                )
-
-                navController.popBackStack()
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Text("Save")
+
+            Button(
+                onClick = {
+
+                    movieViewModel.updateMovieTask(
+                        taskId = taskId,
+                        title = title,
+                        season = season.toIntOrNull() ?: 0,
+                        episode = episode.toIntOrNull() ?: 0,
+                        timestamp = timestamp,
+                        completed = completed
+                    )
+
+                    navController.popBackStack()
+                }
+            ) {
+                Text("Save")
+            }
+
+            Button(
+                onClick = {
+                    showDeleteDialog = true
+                }
+            ) {
+                Text("Delete")
+            }
         }
+        if (showDeleteDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showDeleteDialog = false
+                },
+                title = {
+                    Text("Delete Task")
+                },
+                text = {
+                    Text("Are you sure you want to delete this task? This action cannot be undone.")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            movieViewModel.deleteMovieTask(taskId)
+
+                            navController.navigate(Destinations.HOME) {
+                                popUpTo(Destinations.HOME) {
+                                    inclusive = false
+                                }
+                                launchSingleTop = true
+                            }
+
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            showDeleteDialog = false
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
     }
 }

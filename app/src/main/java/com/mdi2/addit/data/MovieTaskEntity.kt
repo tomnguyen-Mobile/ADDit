@@ -10,6 +10,7 @@ data class MovieTaskEntity(
     val id: Int = 0,
     val title: String,
     val isMovie: Boolean,
+    val imageUrl: String? = null,
     val season: Int = 0,
     val episode: Int = 0 ,
     val timestamp: String? = "00:00:00",

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -15,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,7 +58,7 @@ fun TaskDetailTab(
         .collectAsStateWithLifecycle(initialValue = emptyList())
 
     Column {
-        IconButton(
+        TextButton(
             onClick = {
                 navController.popBackStack()
             }
@@ -65,7 +67,9 @@ fun TaskDetailTab(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back"
             )
-        }// end of icon button
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Back")
+        }
 
         val task = uiState.movieTasks.find {
             it.id == taskId
