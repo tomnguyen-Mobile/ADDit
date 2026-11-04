@@ -11,13 +11,16 @@ data class OmdbMovie(
     val Year: String?,
     val Type: String?,
     val Plot: String?,
+    val Runtime: String?,
     val Response: String?,
+    val imdbID: String?,
     val Error: String?
 )
 data class OmdbSearchItem(
     val Title: String?,
     val Year: String?,
     val Poster: String?,
+    val Type: String?,
     val imdbID: String?
 )
 data class OmdbSearchResponse(

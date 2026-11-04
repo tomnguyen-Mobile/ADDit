@@ -72,6 +72,21 @@ fun EditTaskTab(
     var timestamp by remember { mutableStateOf(task.timestamp) }
     var completed by remember { mutableStateOf(task.completed) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var progress by remember {
+
+        val parts = task.timestamp.split(":")
+
+        val totalSeconds =
+            if (parts.size == 3) {
+                (parts[0].toIntOrNull() ?: 0) * 3600 +
+                        (parts[1].toIntOrNull() ?: 0) * 60 +
+                        (parts[2].toIntOrNull() ?: 0)
+            } else {
+                0
+            }
+
+        mutableStateOf(totalSeconds.toFloat())
+    }
 
     Column(
         modifier = Modifier
@@ -145,12 +160,27 @@ fun EditTaskTab(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        TextField(
-            value = timestamp,
-            onValueChange = { timestamp = it },
-            placeholder = {timestamp},
-            label = { Text("Timestamp") },
-            modifier = Modifier.fillMaxWidth()
+        Text(
+            text = "Current Timestamp: $timestamp"
+        )
+        TimestampSlider(
+            totalSeconds = 7200,
+            currentSeconds = progress,
+            onPositionChange = {
+                progress = it
+
+                val totalSeconds = it.toInt()
+
+                val hours = totalSeconds / 3600
+                val minutes = (totalSeconds % 3600) / 60
+                val seconds = totalSeconds % 60
+
+                timestamp = "%02d:%02d:%02d".format(
+                    hours,
+                    minutes,
+                    seconds
+                )
+            }
         )
                 Row(
             verticalAlignment = Alignment.CenterVertically
