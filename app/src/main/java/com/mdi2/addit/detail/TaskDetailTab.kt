@@ -1,5 +1,7 @@
 package com.mdi2.addit.detail
 
+import android.R.attr.onClick
+import android.R.attr.text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +35,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.mdi2.addit.MovieApplication
 import com.mdi2.addit.home.MovieViewModel
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun TaskDetailTab(
@@ -53,6 +58,7 @@ fun TaskDetailTab(
         })
     val uiState by movieViewModel.uiState.collectAsStateWithLifecycle()
     var commentText by remember { mutableStateOf("") }
+    val context = LocalContext.current
     val comments by movieViewModel
         .getCommentsForTask(taskId)
         .collectAsStateWithLifecycle(initialValue = emptyList())
@@ -102,6 +108,36 @@ fun TaskDetailTab(
 
                 Text("Timestamp: ${task.timestamp}")
                 Text("Completed: ${task.completed}")
+
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(
+                                "https://www.youtube.com/results?search_query=${task.title}+trailer"
+                            )
+                        )
+
+                        context.startActivity(intent)
+                    }
+                ) {
+                    Text("▶ Watch Trailer")
+                }
+//                    onClick = {
+//                        val intent = Intent(
+//                            Intent.ACTION_VIEW,
+//                            Uri.parse(
+//                                "https://www.netflix.com/search?q=${task.title}"
+//                            )
+//                        )
+//                        context.startActivity(intent)
+//                    }
+//                ) {
+//                    Text("🎬 Search on Netflix")
+//                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = {
                         navController.navigate("editTask/$taskId")
@@ -109,6 +145,7 @@ fun TaskDetailTab(
                 ) {
                     Text("Edit")
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
 
 

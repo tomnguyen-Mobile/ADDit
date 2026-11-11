@@ -1,25 +1,19 @@
 package com.mdi2.addit.home
 
-import android.R.attr.clickable
-import android.R.attr.text
-import android.R.id.bold
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,10 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,9 +32,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.mdi2.addit.Destinations
 import com.mdi2.addit.MovieApplication
-import com.mdi2.addit.models.MovieTask
-import com.mdi2.addit.models.SettingsViewModel
-import com.mdi2.addit.settingsScreen.SettingsTab
+import com.mdi2.addit.R
 
 @Composable
 fun HomeTab(
@@ -87,13 +76,34 @@ fun HomeView(
             .imePadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         )   {
+
         Text(
-            "ADDit - Movies/Shows Tracker",
+            text = "ADDit",
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
+        )
 
-        ) // end of Text for header
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+
+        ) {
+
+            Image(
+                painter = painterResource(R.drawable.addit_logo),
+                contentDescription = "ADDit Logo",
+                modifier = Modifier.size(40.dp)
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = "Movies & TV Tracker",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
 
 
         if (uiState.movieTasks.isEmpty()) {

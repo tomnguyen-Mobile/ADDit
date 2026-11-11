@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "0aec55ca1b224d6d39f4897d8a04b032",
+    "identityHash": "34aae20ea9ca2cd5ee103afb4159ea79",
     "entities": [
       {
         "tableName": "movie_tasks",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `isMovie` INTEGER NOT NULL, `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `timestamp` TEXT, `completed` INTEGER NOT NULL, `comments` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `isMovie` INTEGER NOT NULL, `imageUrl` TEXT, `season` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `timestamp` TEXT, `completed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -25,6 +25,11 @@
             "columnName": "isMovie",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "imageUrl",
+            "columnName": "imageUrl",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "season",
@@ -48,11 +53,6 @@
             "columnName": "completed",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "comments",
-            "columnName": "comments",
-            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
@@ -61,11 +61,65 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "comments",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `movieTaskId` INTEGER NOT NULL, `comment` TEXT NOT NULL, FOREIGN KEY(`movieTaskId`) REFERENCES `movie_tasks`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "movieTaskId",
+            "columnName": "movieTaskId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comment",
+            "columnName": "comment",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_comments_movieTaskId",
+            "unique": false,
+            "columnNames": [
+              "movieTaskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_comments_movieTaskId` ON `${TABLE_NAME}` (`movieTaskId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "movie_tasks",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "movieTaskId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0aec55ca1b224d6d39f4897d8a04b032')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '34aae20ea9ca2cd5ee103afb4159ea79')"
     ]
   }
 }

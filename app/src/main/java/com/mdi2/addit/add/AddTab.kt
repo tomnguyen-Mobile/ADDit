@@ -2,28 +2,23 @@ package com.mdi2.addit.add
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -40,7 +35,26 @@ import com.mdi2.addit.data.network.OmdbSearchCard
 import com.mdi2.addit.data.network.OmdbSearchItem
 import com.mdi2.addit.edit.TimestampSlider
 import com.mdi2.addit.home.MovieViewModel
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import androidx.compose.ui.platform.LocalContext
 
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE)
+                as ConnectivityManager
+
+    val network = connectivityManager.activeNetwork ?: return false
+
+    val capabilities =
+        connectivityManager.getNetworkCapabilities(network)
+            ?: return false
+
+    return capabilities.hasCapability(
+        NetworkCapabilities.NET_CAPABILITY_INTERNET
+    )
+}
 @Composable
 fun AddTab(
     navController: NavController
@@ -62,6 +76,7 @@ fun AddTab(
     var progress by remember {
         mutableStateOf(0f)
     }
+    val context = LocalContext.current
     var title by rememberSaveable { mutableStateOf("") }
     var isMovie by rememberSaveable { mutableStateOf(true) }
     var season by rememberSaveable { mutableStateOf("") }
@@ -70,9 +85,9 @@ fun AddTab(
     var completed by rememberSaveable { mutableStateOf(false) }
     var imageUrl:String? by rememberSaveable { mutableStateOf(null) }
     var searchResult by remember {mutableStateOf<OmdbMovie?>(null)} // will only return one result
-    var searchResults by remember {
-        mutableStateOf<List<OmdbSearchItem>>(emptyList())
-    }
+    var errorMessage by remember { mutableStateOf<String?>(null) } // handles no internet
+    var isLoading by remember {        mutableStateOf(false)    } // loading spinner
+    var searchResults by remember {        mutableStateOf<List<OmdbSearchItem>>(emptyList())    }
 
 
 
@@ -95,19 +110,48 @@ fun AddTab(
             label = { Text("Title") },
             modifier = Modifier.fillMaxWidth(),
         )
+        // SEARCH BUTTON
         Button(
             onClick = {
+
+                // check for the internet first
+                if (!isInternetAvailable(context)) {
+                    errorMessage = "No internet connection."
+                    return@Button
+                }
 
                 // Clear previously selected movie details
                 searchResult = null
                 imageUrl = null
+                errorMessage = null
+                isLoading = true
 
                 movieViewModel.searchMovies(title) { movies ->
+                    isLoading = false
                     searchResults = movies
+                    if (movies.isEmpty()) {
+                        errorMessage = "No results found."
+                    }
                 }
-            }
+            },
+            enabled = title.isNotBlank() && isInternetAvailable(context)
         ) {
             Text("Search OMDb")
+        } // end of search button
+        if (!isInternetAvailable(context)) {
+            Text(
+                text = "Offline: OMDb unavailable",
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+        errorMessage?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error
+            )
         }
         searchResult?.let { movie ->
 
@@ -177,7 +221,7 @@ fun AddTab(
                             title = fullMovie?.Title.orEmpty()
                             imageUrl = fullMovie?.Poster
                             isMovie = fullMovie?.Type == "movie"
-
+                            errorMessage = null
                             if (!isMovie) {
                                 season = "1"
                                 episode = "1"
@@ -187,35 +231,6 @@ fun AddTab(
                 )
             }
         }
-
-//        if (searchResult == null) {
-//
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                RadioButton(
-//                    selected = isMovie,
-//                    onClick = { isMovie = true }
-//                )
-//                Text("Movie")
-//
-//                Spacer(modifier = Modifier.width(16.dp))
-//
-//                RadioButton(
-//                    selected = !isMovie,
-//                    onClick = { isMovie = false }
-//                )
-//                Text("TV Show")
-//            }
-//
-//        } else {
-//
-//            Text(
-//                text = if (isMovie) "Type: Movie" else "Type: TV Show",
-//                style = MaterialTheme.typography.titleMedium
-//            )
-//
-//        }
 
         if (!isMovie) {
 
@@ -253,29 +268,6 @@ fun AddTab(
                 )
             }
         }
-
-
-//        Text(
-//            text = "Current Position: $timestamp"
-//        )
-//        if (!completed) {
-//
-//            Button(
-//                onClick = {
-//                    completed = true
-//                }
-//            ) {
-//                Text("Mark as Finished")
-//            }
-//
-//        } else {
-//
-//            Text(
-//                text = "✅ Finished Watching",
-//                style = MaterialTheme.typography.titleMedium
-//            )
-//
-//        }
 
         Button(
             onClick = {

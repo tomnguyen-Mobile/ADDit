@@ -4,10 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
@@ -17,16 +23,21 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,6 +48,7 @@ import com.mdi2.addit.edit.EditTaskTab
 import com.mdi2.addit.home.HomeTab
 import com.mdi2.addit.settingsScreen.SettingsTab
 import com.mdi2.addit.ui.theme.ADDitTheme
+import kotlinx.coroutines.delay
 
 
 data class NavItem(val route:String, val icon: ImageVector)
@@ -53,6 +65,7 @@ class Destinations{
         const val SETTINGS = "Settings"
         const val TASK_DETAIL = "TaskDetail"
         const val EDIT_TASK = "EditTask"
+        const val SPLASH = "SPLASH"
 
     }
 }
@@ -82,7 +95,6 @@ class MainActivity : ComponentActivity() {
                                             }
                                             launchSingleTop = true
 //                                            restoreState = true
-
                                         } },
                                         icon = {Icon(destination.icon, contentDescription = null)},
                                         label = {Text(destination.route)}
@@ -92,7 +104,7 @@ class MainActivity : ComponentActivity() {
                         }
                 )
                 {innerPadding ->
-                    NavHost(navController = navController, startDestination = Destinations.HOME
+                    NavHost(navController = navController, startDestination = Destinations.SPLASH
                     , modifier = Modifier.padding(innerPadding)){
                         composable(Destinations.HOME){ HomeTab(navController) }
                         composable(Destinations.ADD){ AddTab(navController) }
@@ -108,6 +120,11 @@ class MainActivity : ComponentActivity() {
                             val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: 0
                             EditTaskTab(taskId = taskId, navController = navController)
                         }
+                        composable(
+                            Destinations.SPLASH
+                        ) {
+                            splashScreen(navController)
+                        }
                     }
 //                    LandingScreen(modifier = Modifier.padding(innerPadding))
                 }
@@ -117,41 +134,42 @@ class MainActivity : ComponentActivity() {
 }
 
 // add a splash screen
-// float action button
+
+
 @Composable
-fun LandingScreen(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxSize().padding(24.dp)){
-        Card(modifier = Modifier.fillMaxWidth().padding()){}
-        Text(text = "Hello world!")
-        Text(text = "This is the landing screen.")
-        Button(onClick={print("Get Started button clicked")}){
-            Text(text = "Click me")
+fun splashScreen(
+    navController: NavController
+) {
+    LaunchedEffect(Unit) {
+        delay(3000)
+        navController.navigate(
+            Destinations.HOME
+        ) {
+            popUpTo(0)
         }
     }
-}
-
-@Composable
-fun ScreenWithFab() {
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { /* Do something */ }) {
-                Icon(Icons.Filled.Add, contentDescription = "Add")
-            }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.offset(y = (-80).dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(
+                    R.drawable.addit_logo
+                ),
+                contentDescription = "ADDit Logo",
+                modifier = Modifier.size(150.dp)
+            )
+            Text(
+                text = "ADDit",
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Text(
+                text = "Track movies and TV shows"
+            )
         }
-    ) { innerPadding ->
-        // Your screen content goes here
-        Text(
-            text = "Hello World",
-            modifier = Modifier.padding(innerPadding)
-        )
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun MainPreview() {
-    ADDitTheme {
-        LandingScreen()
     }
 }

@@ -3,7 +3,6 @@ package com.mdi2.addit.data
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.mdi2.addit.models.MovieTask
 import kotlinx.coroutines.flow.Flow
 
 @Dao
